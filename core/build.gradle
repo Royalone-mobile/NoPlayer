@@ -1,0 +1,57 @@
+apply plugin: 'com.android.library'
+apply plugin: 'bintray-release'
+apply plugin: 'jacoco'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.3"
+
+    defaultConfig {
+        minSdkVersion 16
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    lintOptions {
+        lintConfig file("$rootProject.projectDir/team-props/lint-rules/config.xml")
+        abortOnError false
+    }
+
+    aaptOptions {
+        cruncherEnabled = false
+    }
+}
+
+dependencies {
+    compile 'com.google.android.exoplayer:exoplayer:r2.5.4'
+    compile 'com.novoda:notils-java:3.0.2'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.7.22'
+    testCompile 'org.easytesting:fest-assert-core:2.0M10'
+}
+
+project.afterEvaluate({
+    task jarTest(type: Jar, dependsOn: assembleDebugUnitTest) {
+        from "$project.buildDir/intermediates/classes/test/debug/"
+        classifier = 'test'
+    }
+
+    configurations {
+        testOutput.extendsFrom(testCompile)
+    }
+
+    artifacts {
+        testOutput jarTest
+    }
+})
+
+publish {
+    userOrg = 'novoda'
+    repoName = 'maven'
+    groupId = 'com.novoda'
+    artifactId = 'no-player'
+    version = project.version
+
+    uploadName = 'no-player'
+    description = 'player to wrap players'
+    website = 'https://github.com/novoda/no-player'
+}
